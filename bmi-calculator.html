@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMI Calculator - Neumorphism</title>
+<style>
+  :root{
+    --bg:#e6e7ee;
+    --shadow-dark:#c5c6cc;
+    --shadow-light:#ffffff;
+    --text-dark:#3a3a4a;
+    --text-light:#9a9ab0;
+    --accent:#5b7fff;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; font-family:'Segoe UI', Arial, sans-serif;}
+  body{
+    background:var(--bg);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .card{
+    background:var(--bg);
+    border-radius:32px;
+    padding:32px 28px;
+    width:100%;
+    max-width:380px;
+    box-shadow: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light);
+  }
+  .title{
+    text-align:center;
+    color:var(--text-dark);
+    font-size:22px;
+    font-weight:700;
+    letter-spacing:1px;
+    margin-bottom:4px;
+  }
+  .subtitle{
+    text-align:center;
+    color:var(--text-light);
+    font-size:13px;
+    margin-bottom:28px;
+  }
+
+  /* Neumorphic gauge */
+  .gauge-wrap{
+    background:var(--bg);
+    border-radius:24px;
+    padding:24px;
+    box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin-bottom:24px;
+  }
+  .gauge{
+    position:relative;
+    width:220px;
+    height:130px;
+    margin-bottom:6px;
+  }
+  .gauge svg{width:100%; height:100%;}
+  .gauge-center{
+    position:absolute;
+    bottom:0;
+    left:50%;
+    transform:translateX(-50%);
+    text-align:center;
+  }
+  .bmi-value{
+    font-size:38px;
+    font-weight:700;
+    color:var(--text-dark);
+  }
+  .bmi-category{
+    font-size:13px;
+    font-weight:600;
+    color:var(--accent);
+    margin-top:2px;
+  }
+
+  /* Inputs */
+  .input-row{
+    display:flex;
+    gap:14px;
+    margin-bottom:16px;
+  }
+  .field{
+    flex:1;
+    background:var(--bg);
+    border-radius:16px;
+    padding:14px 16px;
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+  }
+  .field label{
+    display:block;
+    font-size:11px;
+    color:var(--text-light);
+    margin-bottom:4px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+  .field input{
+    width:100%;
+    border:none;
+    background:transparent;
+    outline:none;
+    font-size:18px;
+    font-weight:600;
+    color:var(--text-dark);
+  }
+
+  .unit-toggle{
+    display:flex;
+    background:var(--bg);
+    border-radius:16px;
+    padding:4px;
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+    margin-bottom:20px;
+  }
+  .unit-btn{
+    flex:1;
+    text-align:center;
+    padding:10px;
+    border-radius:12px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--text-light);
+    cursor:pointer;
+    transition:0.2s;
+  }
+  .unit-btn.active{
+    background:var(--bg);
+    color:var(--accent);
+    box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+  }
+
+  .calc-btn{
+    width:100%;
+    padding:16px;
+    border:none;
+    border-radius:16px;
+    background:var(--bg);
+    color:var(--accent);
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:0.5px;
+    cursor:pointer;
+    box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+    transition:0.15s;
+  }
+  .calc-btn:active{
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+  }
+
+  .scale-row{
+    display:flex;
+    justify-content:space-between;
+    margin-top:18px;
+    gap:6px;
+  }
+  .scale-item{
+    flex:1;
+    text-align:center;
+    padding:10px 4px;
+    border-radius:12px;
+    background:var(--bg);
+    box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+  }
+  .scale-item .dot{
+    width:8px; height:8px; border-radius:50%;
+    margin:0 auto 6px;
+  }
+  .scale-item span{
+    font-size:9px;
+    color:var(--text-light);
+    font-weight:600;
+    display:block;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="title">BMI CALCULATOR</div>
+  <div class="subtitle">Check your Body Mass Index</div>
+
+  <div class="gauge-wrap">
+    <div class="gauge">
+      <svg viewBox="0 0 220 130">
+        <path d="M 20 120 A 90 90 0 0 1 200 120" fill="none" stroke="#d1d2da" stroke-width="14" stroke-linecap="round"/>
+        <path id="arcFill" d="M 20 120 A 90 90 0 0 1 200 120" fill="none" stroke="#5b7fff" stroke-width="14" stroke-linecap="round" stroke-dasharray="283" stroke-dashoffset="283"/>
+      </svg>
+      <div class="gauge-center">
+        <div class="bmi-value" id="bmiVal">--</div>
+        <div class="bmi-category" id="bmiCat">Enter details</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="unit-toggle">
+    <div class="unit-btn active" id="metricBtn" onclick="setUnit('metric')">Metric (kg/cm)</div>
+    <div class="unit-btn" id="imperialBtn" onclick="setUnit('imperial')">Imperial (lb/in)</div>
+  </div>
+
+  <div class="input-row">
+    <div class="field">
+      <label id="weightLabel">Weight (kg)</label>
+      <input type="number" id="weight" placeholder="e.g. 65">
+    </div>
+    <div class="field">
+      <label id="heightLabel">Height (cm)</label>
+      <input type="number" id="height" placeholder="e.g. 170">
+    </div>
+  </div>
+
+  <button class="calc-btn" onclick="calcBMI()">CALCULATE BMI</button>
+
+  <div class="scale-row">
+    <div class="scale-item"><div class="dot" style="background:#7fa8ff"></div><span>Under</span></div>
+    <div class="scale-item"><div class="dot" style="background:#5cd684"></div><span>Normal</span></div>
+    <div class="scale-item"><div class="dot" style="background:#ffb347"></div><span>Over</span></div>
+    <div class="scale-item"><div class="dot" style="background:#ff6b6b"></div><span>Obese</span></div>
+  </div>
+</div>
+
+<script>
+let unit = 'metric';
+
+function setUnit(u){
+  unit = u;
+  document.getElementById('metricBtn').classList.toggle('active', u==='metric');
+  document.getElementById('imperialBtn').classList.toggle('active', u==='imperial');
+  document.getElementById('weightLabel').textContent = u==='metric' ? 'Weight (kg)' : 'Weight (lb)';
+  document.getElementById('heightLabel').textContent = u==='metric' ? 'Height (cm)' : 'Height (in)';
+  document.getElementById('weight').value = '';
+  document.getElementById('height').value = '';
+}
+
+function calcBMI(){
+  let w = parseFloat(document.getElementById('weight').value);
+  let h = parseFloat(document.getElementById('height').value);
+  if(!w || !h || w<=0 || h<=0){
+    document.getElementById('bmiVal').textContent = '--';
+    document.getElementById('bmiCat').textContent = 'Invalid input';
+    return;
+  }
+
+  let bmi;
+  if(unit === 'metric'){
+    bmi = w / ((h/100) * (h/100));
+  } else {
+    bmi = (w / (h*h)) * 703;
+  }
+  bmi = Math.round(bmi * 10) / 10;
+
+  document.getElementById('bmiVal').textContent = bmi;
+
+  let cat, color, percent;
+  if(bmi < 18.5){ cat='Underweight'; color='#7fa8ff'; percent = Math.min(bmi/18.5, 1) * 25; }
+  else if(bmi < 25){ cat='Normal'; color='#5cd684'; percent = 25 + ((bmi-18.5)/(25-18.5))*25; }
+  else if(bmi < 30){ cat='Overweight'; color='#ffb347'; percent = 50 + ((bmi-25)/(30-25))*25; }
+  else { cat='Obese'; color='#ff6b6b'; percent = Math.min(75 + ((bmi-30)/10)*25, 100); }
+
+  document.getElementById('bmiCat').textContent = cat;
+  document.getElementById('bmiCat').style.color = color;
+
+  let arc = document.getElementById('arcFill');
+  arc.style.stroke = color;
+  let offset = 283 - (283 * percent/100);
+  arc.style.strokeDashoffset = offset;
+}
+</script>
+
+</body>
+</html>
